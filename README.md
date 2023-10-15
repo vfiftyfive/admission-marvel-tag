@@ -4,7 +4,7 @@
 ![Cert-Manager](https://img.shields.io/badge/Cert--Manager-1.13.1-green)
 ![License](https://img.shields.io/badge/License-MIT-purple)
 
-![Kubernetes Logo](https://path/to/kubernetes-logo.png)
+<img src="https://github.com/kubernetes/kubernetes/raw/master/logo/logo.png" width="100">
 
 # Introduction
 Marvel Webhook is a Kubernetes Mutating Admission Webhook that adds a Marvel superhero name as a label to every new pod. Built with ❤️ in Go, it's a fun way to add some Marvel magic to your Kubernetes cluster!
