@@ -59,9 +59,6 @@ Navigate to the cmd/marvel-webhook directory and run:
 go test
 ```
 
-# Contributing
-We welcome contributions! Please see CONTRIBUTING.md for details.
-
 # License
-This project is licensed under the MIT License - see the LICENSE.md file for details.
+This project is licensed under the MIT License - see the ![LICENSE.md](LICENSE.md) file for details.
 
