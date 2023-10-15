@@ -11,10 +11,15 @@ Marvel Webhook is a Kubernetes Mutating Admission Webhook that adds a Marvel sup
 
 # Features
 🦸‍♂️ Adds a random Marvel superhero name as a label to new pods
+
 🛡️ Secure TLS communication using Cert-Manager
+
 📦 Easy to install and configure
+
 📝 Well-documented codebase
+
 🧪 Includes unit tests
+
 # Prerequisites
 - Kubernetes 1.18+
 - Go 1.16+
