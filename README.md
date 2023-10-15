@@ -31,7 +31,9 @@ kubectl apply -f deploy/cert-manager/
 ```
 
 ## Build the webhook (optional)
+```bash
 docker build -t marvel-webhook:<your_tag> -f cmd/marvel-webhook/Dockerfile .
+```
 
 # Deploy the Webhook
 ```bash
