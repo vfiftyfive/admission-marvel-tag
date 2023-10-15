@@ -18,5 +18,55 @@ webhooks:
         resources: ["pods"]
     sideEffects: None
     admissionReviewVersions: ["v1", "v1beta1"]
-    failurePolicy: 'Fail' #default is Fail
-
+    failurePolicy: 'Ignore' #default is Fail
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: marvel-webhook
+  name: marvel-webhook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: marvel-webhook
+  template:
+    metadata:
+      labels:
+        app: marvel-webhook
+    spec:
+      containers:
+      - image: vfiftyfive/marvel-webhook:latest
+        env:
+        - name: MARVEL_PRIVATE_KEY
+          value: "4acd2f878d8691048f7e58d61467aea1dcd5c791"
+        name: marvel-webhook
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8443
+          name: webhook-server
+        volumeMounts:
+          - mountPath: /etc/webhook/certs
+            name: webhook-certs
+            readOnly: true
+      volumes:
+        - name: webhook-certs
+          secret:
+            secretName: marvel-webhook-tls
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: marvel-webhook
+  name: marvel-webhook
+spec:
+  ports:
+  - name: 443-webhook-server
+    port: 443
+    protocol: TCP
+    targetPort: webhook-server
+  selector:
+    app: marvel-webhook
+  type: ClusterIP

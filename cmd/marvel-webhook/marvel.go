@@ -2,13 +2,15 @@ package main
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"fmt"
+	"io"
 	"math/rand"
 	"net/http"
+	"regexp"
+	"strings"
 	"time"
 )
 
-// Structure for Marvel API response
 type MarvelResponse struct {
 	Data struct {
 		Results []struct {
@@ -17,29 +19,52 @@ type MarvelResponse struct {
 	} `json:"data"`
 }
 
-// Function to fetch a random Marvel character name
-func getRandomMarvelName() (string, error) {
-	// Make an HTTP GET request to the Marvel API
-	resp, err := http.Get("https://gateway.marvel.com/v1/public/characters?YOUR_API_KEY_HERE")
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
+// sanitizeLabel replaces spaces with underscores and removes illegal characters
+func sanitizeLabel(label string) string {
+	// Replace spaces with underscores
+	label = strings.ReplaceAll(label, " ", "_")
 
-	// Read the response body
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
+	// Remove illegal characters using regular expression
+	re := regexp.MustCompile(`[^a-zA-Z0-9_.-]`)
+	label = re.ReplaceAllString(label, "")
+
+	return label
+}
+
+// Function to construct the Marvel API URL
+func constructMarvelAPIURL(ts string, publicKey string, hash string) string {
+	return fmt.Sprintf("https://gateway.marvel.com/v1/public/characters?ts=%s&apikey=%s&hash=%s", ts, publicKey, hash)
+}
+
+func getRandomMarvelName(apiURL string, maxOffset int) (string, error) {
+	var allNames []string
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	for offset := 0; offset <= maxOffset; offset += 100 {
+		// Update the API URL with the new offset
+		apiURLWithOffset := fmt.Sprintf("%s&offset=%d", apiURL, offset)
+
+		resp, err := http.Get(apiURLWithOffset)
+		if err != nil {
+			return "", err
+		}
+		defer resp.Body.Close()
+
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return "", err
+		}
+
+		var marvelResp MarvelResponse
+		if err := json.Unmarshal(body, &marvelResp); err != nil {
+			return "", err
+		}
+
+		for _, result := range marvelResp.Data.Results {
+			allNames = append(allNames, result.Name)
+		}
 	}
 
-	// Deserialize the JSON response
-	var marvelResp MarvelResponse
-	if err := json.Unmarshal(body, &marvelResp); err != nil {
-		return "", err
-	}
-
-	// Pick a random Marvel character name
-	rand.Seed(time.Now().Unix())
-	randomIndex := rand.Intn(len(marvelResp.Data.Results))
-	return marvelResp.Data.Results[randomIndex].Name, nil
+	randomIndex := r.Intn(len(allNames))
+	return allNames[randomIndex], nil
 }
