@@ -24,7 +24,7 @@ Marvel Webhook is a Kubernetes Mutating Admission Webhook that adds a Marvel sup
 
 # Installation
 ## Cert-Manager Setup
-Navigate to the deploy/cert-manager directory and apply all YAML files:
+Apply all YAML files:
 
 ```bash
 kubectl apply -f deploy/cert-manager/
@@ -50,7 +50,6 @@ kubectl get pods --show-labels
 # Development
 
 ## Running Tests
-Navigate to the cmd/marvel-webhook directory and run:
 
 ```bash
 export MARVEL_PRIVATE_KEY=<your_private_key>
