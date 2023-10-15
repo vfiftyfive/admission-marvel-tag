@@ -12,36 +12,31 @@ Marvel Webhook is a Kubernetes Mutating Admission Webhook that adds a Marvel sup
 # Features
 🦸‍♂️ Adds a random Marvel superhero name as a label to new pods
 
+🧪 Includes unit test
+
 🛡️ Secure TLS communication using Cert-Manager
-
-📦 Easy to install and configure
-
-📝 Well-documented codebase
-
-🧪 Includes unit tests
 
 # Prerequisites
 - Kubernetes 1.18+
 - Go 1.16+
 - Cert-Manager 1.3.1+
+- Marvel API keys
 
 # Installation
-Cert-Manager Setup
+## Cert-Manager Setup
 Navigate to the deploy/cert-manager directory and apply all YAML files:
 
 ```bash
 kubectl apply -f deploy/cert-manager/
 ```
 
-# Webhook Configuration
-Apply the MutatingWebhookConfiguration:
+## Build the webhook (optional)
+docker build -t marvel-webhook:<your_tag> -f cmd/marvel-webhook/Dockerfile .
 
+# Deploy the Webhook
 ```bash
 kubectl apply -f deploy/webhook-configuration/marvel-webhook.yaml
 ```
-
-# Deploy the Webhook
-Coming soon!
 
 # Usage
 Once installed, every new pod will automatically receive a Marvel superhero name as a label. To check the labels, run:
@@ -56,7 +51,8 @@ kubectl get pods --show-labels
 Navigate to the cmd/marvel-webhook directory and run:
 
 ```bash
-go test
+export MARVEL_PRIVATE_KEY=<your_private_key>
+cd cmd/marvel-webhook/ && go test -v
 ```
 
 # License
