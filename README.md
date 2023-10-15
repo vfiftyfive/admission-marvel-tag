@@ -17,9 +17,7 @@ Marvel Webhook is a Kubernetes Mutating Admission Webhook that adds a Marvel sup
 🛡️ Secure TLS communication using Cert-Manager
 
 # Prerequisites
-- Kubernetes 1.18+
-- Go 1.16+
-- Cert-Manager 1.3.1+
+- Kubernetes cluster
 - Marvel API keys
 
 # Installation
