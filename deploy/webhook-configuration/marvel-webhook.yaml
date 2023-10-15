@@ -1,0 +1,22 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: marvel-webhook
+  annotations:
+    cert-manager.io/inject-ca-from: default/marvel-webhook-tls 
+webhooks:
+  - name: marvel-webhook.default.svc  
+    clientConfig:
+      service:
+        name: marvel-webhook
+        namespace: default
+        path: "/add-marvel-label"
+    rules:
+      - operations: ["CREATE"]
+        apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["pods"]
+    sideEffects: None
+    admissionReviewVersions: ["v1", "v1beta1"]
+    failurePolicy: 'Fail' #default is Fail
+

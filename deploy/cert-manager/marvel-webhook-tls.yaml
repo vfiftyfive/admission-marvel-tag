@@ -1,0 +1,11 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: marvel-webhook-tls
+spec:
+  secretName: marvel-webhook-tls
+  issuerRef:
+    name: root-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+  - marvel-webhook.default.svc
