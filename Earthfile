@@ -1,25 +1,22 @@
 # Earthfile
 VERSION 0.7
 
+#BASE
 FROM golang:latest 
 # Set the working directory inside the container.
 WORKDIR /app
+# Copy go.mod and go.sum files to the working directory
+COPY go.mod go.sum ./
+# Download dependencies
+RUN go mod download
 
 build:
-    # Copy go.mod and go.sum files to the working directory
-    COPY go.mod go.sum ./
-    # Download dependencies
-    RUN go mod download
     # Build the Go app
     COPY cmd/marvel-webhook .
     RUN go build -o marvel-webhook .
     SAVE ARTIFACT marvel-webhook
 
 test:
-    # Copy go.mod and go.sum files to the working directory
-    COPY go.mod go.sum ./
-    # Download dependencies
-    RUN go mod download
     # Test the Go app
     COPY cmd/marvel-webhook .
     ARG MARVEL_PRIVATE_KEY
