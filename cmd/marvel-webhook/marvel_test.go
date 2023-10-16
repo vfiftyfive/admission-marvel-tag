@@ -33,6 +33,7 @@ func TestGetRandomMarvelName(t *testing.T) {
 	}
 	defer resp.Body.Close()
 
+	// Read the API response body and log it
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		t.Fatalf("Error reading API response: %v", err)
@@ -40,16 +41,18 @@ func TestGetRandomMarvelName(t *testing.T) {
 
 	log.Printf("Full API Response: %s", string(body))
 
-	// Unmarshal and proceed with the test
+	// Unmarshal and log the API response for debugging
 	var marvelResp MarvelResponse
 	if err := json.Unmarshal(body, &marvelResp); err != nil {
 		t.Fatalf("Error unmarshaling API response: %v", err)
 	}
 
+	// Check the API response for errors
 	if len(marvelResp.Data.Results) == 0 {
 		t.Fatalf("Error fetching Marvel name: no Marvel characters found")
 	}
 
+	// Fetch a random Marvel name
 	_, err = getRandomMarvelName(apiURL, 100)
 	if err != nil {
 		t.Fatalf("Error fetching Marvel name: %v", err)

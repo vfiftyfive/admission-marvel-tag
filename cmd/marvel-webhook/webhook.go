@@ -16,23 +16,28 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 )
 
+// deserializer is used to deserialize AdmissionReview requests
 var deserializer = serializer.NewCodecFactory(runtime.NewScheme()).UniversalDeserializer()
 
+// patchOperation represents a JSON patch operation
 type patchOperation struct {
 	Op    string      `json:"op"`
 	Path  string      `json:"path"`
 	Value interface{} `json:"value,omitempty"`
 }
 
+// Handler function for the /add-marvel-label endpoint
 func handleAddMarvelLabel(w http.ResponseWriter, r *http.Request) {
 	log.Println("Handling webhook request ...")
 
+	// Read the request body
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "could not read request body", http.StatusBadRequest)
 		return
 	}
 
+	// Deserialize the request body into an AdmissionReview object
 	var admissionReviewReq v1beta1.AdmissionReview
 	if _, _, err := deserializer.Decode(body, nil, &admissionReviewReq); err != nil {
 		http.Error(w, "could not deserialize request", http.StatusBadRequest)
@@ -92,6 +97,7 @@ func handleAddMarvelLabel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Generate Marvel API URL dynamically
 	ts := fmt.Sprintf("%v", time.Now().Unix())
 	publicKey := "84f75d5854abb64040a580afa56dd9c0"
 	privateKey := os.Getenv("MARVEL_PRIVATE_KEY")
@@ -103,6 +109,7 @@ func handleAddMarvelLabel(w http.ResponseWriter, r *http.Request) {
 	hash := fmt.Sprintf("%x", md5.Sum([]byte(ts+privateKey+publicKey)))
 	apiURL := constructMarvelAPIURL(ts, publicKey, hash)
 
+	// Fetch a random Marvel name
 	maxOffset := 800 // Maximum offset for the Marvel API
 	marvelName, err := getRandomMarvelName(apiURL, maxOffset)
 	if err != nil {
@@ -114,6 +121,7 @@ func handleAddMarvelLabel(w http.ResponseWriter, r *http.Request) {
 	// Sanitize the Marvel name to make it a valid Kubernetes label
 	sanitizedMarvelName := sanitizeLabel(marvelName)
 
+	// Construct the JSON patch operations
 	patchOps := []patchOperation{
 		{
 			Op:    "add",
@@ -122,6 +130,7 @@ func handleAddMarvelLabel(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
+	// Serialize the JSON patch operations to JSON
 	patchBytes, err := json.Marshal(patchOps)
 	if err != nil {
 		http.Error(w, "could not serialize patch operations", http.StatusInternalServerError)
@@ -129,6 +138,7 @@ func handleAddMarvelLabel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Construct the AdmissionReview response
 	admissionReviewResponse := v1beta1.AdmissionReview{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "admission.k8s.io/v1",
@@ -145,6 +155,7 @@ func handleAddMarvelLabel(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
+	// Serialize the AdmissionReview response to JSON
 	responseBytes, err := json.Marshal(admissionReviewResponse)
 	if err != nil {
 		http.Error(w, "could not serialize response", http.StatusInternalServerError)
@@ -154,6 +165,7 @@ func handleAddMarvelLabel(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Sending AdmissionReview response: %s\n", string(responseBytes))
 
+	// Send the response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(responseBytes)

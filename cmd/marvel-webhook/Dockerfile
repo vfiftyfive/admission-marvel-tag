@@ -12,7 +12,16 @@ RUN go mod download
 COPY cmd/marvel-webhook/ .
 
 # Build the Go application
-RUN go build -o marvel-webhook .
+RUN CGO_ENABLED=0 go build -ldflags "-linkmode external -extldflags -static" -o marvel-webhook .
+
+# Use Distroless as the base image for the runtime
+FROM alpine:latest
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the Go binary from the build stage
+COPY --from=build /app/marvel-webhook .
 
 # Run the Go binary
-CMD ["./marvel-webhook"]
+ENTRYPOINT ["./marvel-webhook"]
