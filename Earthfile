@@ -27,7 +27,7 @@ test:
     
     
 docker:
-    FROM alpine:latest
+    FROM golang:latest
     # Copy the compiled Go binary into the final stage container.
     COPY +build/marvel-webhook .
     # Set the environment variable for the Marvel private key.
