@@ -22,6 +22,7 @@ test:
     RUN go mod download
     # Test the Go app
     COPY cmd/marvel-webhook .
+    ARG MARVEL_PRIVATE_KEY
     RUN go test -v .
     
     
@@ -30,7 +31,7 @@ docker:
     # Copy the compiled Go binary into the final stage container.
     COPY +build/marvel-webhook .
     # Set the environment variable for the Marvel private key.
-    ENV MARVEL_PRIVATE_KEY=$MARVEL_PRIVATE_KEY
+    ARG MARVEL_PRIVATE_KEY
     # Run the Go binary.
     CMD ["./marvel-webhook"]
     SAVE IMAGE --push vfiftyfive/marvel-webhook:latest
@@ -38,7 +39,7 @@ docker:
 all:
     BUILD +build
     BUILD +test
-    BUILD +docker
+    BUILD +multi
 
 multi: 
     BUILD --platform=linux/amd64 --platform=linux/arm64 +docker
