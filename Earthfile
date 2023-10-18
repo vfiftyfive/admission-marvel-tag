@@ -13,7 +13,7 @@ RUN go mod download
 build:
     # Build the Go app
     COPY cmd/marvel-webhook .
-    RUN go build -o marvel-webhook .
+    RUN CGO_ENABLED=0 go build -ldflags "-linkmode external -extldflags -static" -o marvel-webhook .
     SAVE ARTIFACT marvel-webhook
 
 test:
@@ -22,9 +22,8 @@ test:
     ARG MARVEL_PRIVATE_KEY
     RUN go test -v .
     
-    
 docker:
-    FROM golang:latest
+    FROM gcr.io/distroless/static
     # Copy the compiled Go binary into the final stage container.
     COPY +build/marvel-webhook .
     # Set the environment variable for the Marvel private key.
